@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 export function UseForm(initialFieldValues) {
   const [values, setValues] = useState(initialFieldValues);
+  console.log(values);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setValues({
