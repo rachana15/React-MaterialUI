@@ -15,6 +15,14 @@ import React from "react";
 import { Form, UseForm } from "../../Components/UseForm";
 import * as employeeService from "../../Services/employeService";
 
+import "date-fns";
+
+import DateFnsUtils from "@date-io/date-fns";
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from "@material-ui/pickers";
+
 const initialFieldValues = {
   id: 0,
   email: "",
@@ -32,7 +40,9 @@ function EmployeeForm() {
   const handleCheckedInput = (event) => {
     setValues({ ...values, [event.target.name]: event.target.checked });
   };
-
+  const handleDateChange = (name, date) => {
+    setValues({ ...values, [name]: date });
+  };
   return (
     <Form>
       <Grid container>
@@ -49,6 +59,20 @@ function EmployeeForm() {
             value={values.email}
             label="Email"
             name="email"
+            onChange={handleInputChange}
+          />
+          <TextField
+            variant="outlined"
+            value={values.city}
+            label="City"
+            name="city"
+            onChange={handleInputChange}
+          />
+          <TextField
+            variant="outlined"
+            value={values.mobile}
+            label="Mobile"
+            name="mobile"
             onChange={handleInputChange}
           />
         </Grid>
@@ -102,6 +126,25 @@ function EmployeeForm() {
               }
               label="Permanent Employee"
             />
+          </FormControl>
+          <FormControl>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <Grid container justify="space-around">
+                <KeyboardDatePicker
+                  disableToolbar
+                  variant="inline"
+                  format="MM/dd/yyyy"
+                  margin="normal"
+                  label="Hire Date"
+                  name="hireDate"
+                  value={values.hireDate}
+                  onChange={(date) => handleDateChange("hireDate", date)}
+                  KeyboardButtonProps={{
+                    "aria-label": "change date",
+                  }}
+                />
+              </Grid>
+            </MuiPickersUtilsProvider>
           </FormControl>
         </Grid>
       </Grid>
