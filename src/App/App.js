@@ -29,7 +29,7 @@ const theme = createMuiTheme({
 
 const useStyles = makeStyles({
   header: {
-    paddingLeft: "320px !important",
+    // paddingLeft: "320px !important",
     width: "100%",
   },
 });
@@ -38,7 +38,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div className="app">
-        <SideMenu />
+        {/* <SideMenu /> */}
         <div className={classes.header}>
           <Header />
           <Employees />

@@ -1,10 +1,12 @@
 import {
+  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
   FormLabel,
   Grid,
   InputLabel,
+  makeStyles,
   MenuItem,
   Radio,
   RadioGroup,
@@ -14,14 +16,13 @@ import {
 import React from "react";
 import { Form, UseForm } from "../../Components/UseForm";
 import * as employeeService from "../../Services/employeService";
-
 import "date-fns";
-
 import DateFnsUtils from "@date-io/date-fns";
 import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
+import { useStyles } from "@material-ui/pickers/views/Calendar/Day";
 
 const initialFieldValues = {
   id: 0,
@@ -35,8 +36,18 @@ const initialFieldValues = {
   isPermanent: true,
 };
 
+const useStyle = makeStyles((theme) => ({
+  root: {
+    margin: theme.spacing(0.5),
+  },
+  label: {
+    textTransform: "none",
+  },
+}));
+
 function EmployeeForm() {
   const { values, setValues, handleInputChange } = UseForm(initialFieldValues);
+  const classes = useStyle();
   const handleCheckedInput = (event) => {
     setValues({ ...values, [event.target.name]: event.target.checked });
   };
@@ -147,6 +158,28 @@ function EmployeeForm() {
             </MuiPickersUtilsProvider>
           </FormControl>
         </Grid>
+
+        <Grid xs={12}></Grid>
+        <div>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="large"
+            type="submit"
+            classes={{ root: classes.root, label: classes.label }}
+          >
+            Submit
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="large"
+            classes={{ root: classes.root, label: classes.label }}
+            type="reset"
+          >
+            Reset
+          </Button>
+        </div>
       </Grid>
     </Form>
   );
