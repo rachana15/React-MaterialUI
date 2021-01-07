@@ -3,6 +3,7 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   FormLabel,
   Grid,
   InputLabel,
@@ -22,7 +23,6 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker,
 } from "@material-ui/pickers";
-import { useStyles } from "@material-ui/pickers/views/Calendar/Day";
 
 const initialFieldValues = {
   id: 0,
@@ -46,7 +46,33 @@ const useStyle = makeStyles((theme) => ({
 }));
 
 function EmployeeForm() {
-  const { values, setValues, handleInputChange } = UseForm(initialFieldValues);
+  //Validation function
+  const validate = (fieldValues = values) => {
+    let temp = { ...errors };
+    const newLocal = /$^|.+@.+..+/;
+
+    if ("email" in fieldValues)
+      temp.email = newLocal.test(values.email) ? null : "Invalid email";
+    if ("mobile" in fieldValues)
+      temp.mobile =
+        values.mobile.length > 9 ? null : "Minimum of 9 numbers required";
+    if ("departmentID" in fieldValues)
+      temp.departmentId =
+        values.departmentId.length !== 0 ? null : "This field is required";
+
+    setErrors({ ...temp });
+    // console.log(errors);
+
+    if (fieldValues == values)
+      return Object.values(temp).every((x) => x == null);
+  };
+
+  //resuable variables and functions
+  const { values, setValues, handleInputChange, errors, setErrors } = UseForm(
+    initialFieldValues,
+    true,
+    validate
+  );
   const classes = useStyle();
   const handleCheckedInput = (event) => {
     setValues({ ...values, [event.target.name]: event.target.checked });
@@ -54,15 +80,25 @@ function EmployeeForm() {
   const handleDateChange = (name, date) => {
     setValues({ ...values, [name]: date });
   };
+  const resetForm = () => {
+    setValues(initialFieldValues);
+    setErrors({});
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validate()) window.alert("testing");
+  };
   return (
-    <Form>
+    <Form onSubmit={handleSubmit}>
       <Grid container>
         <Grid item xs={12} sm={6}>
           <TextField
+            required
             variant="outlined"
             value={values.fullName}
             name="fullName"
-            label="full name"
+            label="Full name"
             onChange={handleInputChange}
           />
           <TextField
@@ -71,6 +107,7 @@ function EmployeeForm() {
             label="Email"
             name="email"
             onChange={handleInputChange}
+            {...(errors.email && { error: true, helperText: "Invalid Email" })}
           />
           <TextField
             variant="outlined"
@@ -80,11 +117,16 @@ function EmployeeForm() {
             onChange={handleInputChange}
           />
           <TextField
+            required
             variant="outlined"
             value={values.mobile}
             label="Mobile"
             name="mobile"
             onChange={handleInputChange}
+            {...(errors.mobile && {
+              error: true,
+              helperText: "Minimum of 9 numbers required",
+            })}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -110,7 +152,10 @@ function EmployeeForm() {
               />
             </RadioGroup>
           </FormControl>
-          <FormControl varient="outlined">
+          <FormControl
+            varient="outlined"
+            {...(errors.departmentId && { error: true })}
+          >
             <InputLabel>Department</InputLabel>
             <Select
               labelId="Department"
@@ -125,6 +170,7 @@ function EmployeeForm() {
                 </MenuItem>
               ))}
             </Select>
+            {errors.departmentId && <FormHelperText>Required</FormHelperText>}
           </FormControl>
           <FormControl>
             <FormControlLabel
@@ -159,7 +205,7 @@ function EmployeeForm() {
           </FormControl>
         </Grid>
 
-        <Grid xs={12}></Grid>
+        <Grid item xs={12}></Grid>
         <div>
           <Button
             variant="contained"
@@ -176,6 +222,7 @@ function EmployeeForm() {
             size="large"
             classes={{ root: classes.root, label: classes.label }}
             type="reset"
+            onClick={resetForm}
           >
             Reset
           </Button>
