@@ -1,6 +1,7 @@
 import React from "react";
 import PageHeader from "../../Components/PageHeader";
 import EmployeeForm from "./EmployeeForm";
+import { EnhancedTable as EmployeeTable } from "./EmployeeTable";
 import PeopleOutlineIcon from "@material-ui/icons/PeopleOutline";
 import { makeStyles, Paper } from "@material-ui/core";
 const useStyles = makeStyles((theme) => ({
@@ -21,6 +22,7 @@ function Employees() {
       />
       <Paper className={classes.pageContent}>
         <EmployeeForm />
+        <EmployeeTable />
       </Paper>
     </>
   );

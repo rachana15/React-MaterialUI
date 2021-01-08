@@ -52,13 +52,13 @@ function EmployeeForm() {
     const newLocal = /$^|.+@.+..+/;
 
     if ("email" in fieldValues)
-      temp.email = newLocal.test(values.email) ? null : "Invalid email";
+      temp.email = newLocal.test(fieldValues.email) ? null : "Invalid email";
     if ("mobile" in fieldValues)
       temp.mobile =
-        values.mobile.length > 9 ? null : "Minimum of 9 numbers required";
+        fieldValues.mobile.length > 9 ? null : "Minimum of 9 numbers required";
     if ("departmentID" in fieldValues)
       temp.departmentId =
-        values.departmentId.length !== 0 ? null : "This field is required";
+        fieldValues.departmentId.length !== 0 ? null : "This field is required";
 
     setErrors({ ...temp });
     // console.log(errors);
@@ -87,7 +87,10 @@ function EmployeeForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validate()) window.alert("testing");
+    if (validate()) {
+      employeeService.insertEmployee(values);
+      resetForm();
+    }
   };
   return (
     <Form onSubmit={handleSubmit}>
@@ -152,10 +155,7 @@ function EmployeeForm() {
               />
             </RadioGroup>
           </FormControl>
-          <FormControl
-            varient="outlined"
-            {...(errors.departmentId && { error: true })}
-          >
+          <FormControl varient="outlined" required>
             <InputLabel>Department</InputLabel>
             <Select
               labelId="Department"
@@ -170,7 +170,6 @@ function EmployeeForm() {
                 </MenuItem>
               ))}
             </Select>
-            {errors.departmentId && <FormHelperText>Required</FormHelperText>}
           </FormControl>
           <FormControl>
             <FormControlLabel
