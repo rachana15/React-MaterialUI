@@ -21,7 +21,7 @@ function Employees() {
         icon={<PeopleOutlineIcon fontSize="large" />}
       />
       <Paper className={classes.pageContent}>
-        <EmployeeForm />
+        
         <EmployeeTable />
       </Paper>
     </>

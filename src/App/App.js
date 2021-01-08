@@ -5,8 +5,6 @@ import {
   ThemeProvider,
 } from "@material-ui/core";
 import Header from "../Components/Header";
-import PageHeader from "../Components/PageHeader";
-import SideMenu from "../Components/SideMenu";
 import "./App.css";
 
 import Employees from "../Pages/Employees/Employees";
@@ -19,7 +17,7 @@ const theme = createMuiTheme({
     },
     secondary: {
       main: "#f83245",
-      light: "#f832456",
+      light: "#f83245",
     },
     background: {
       default: "#f4f5fd",

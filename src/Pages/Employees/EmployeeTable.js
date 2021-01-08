@@ -20,12 +20,18 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
+import AddIcon from "@material-ui/icons/Add";
 import { getEmployees } from "../../Services/employeService";
-import { Input, InputAdornment, InputBase, TextField } from "@material-ui/core";
+import { Button, TextField } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
+import Popup from "../../Components/Popup";
+import EmployeeForm from "./EmployeeForm";
+import * as employeeService from "../../Services/employeService";
+import ActionButton from "../../Components/ActionButton";
+import EditIcon from "@material-ui/icons/Edit";
 
-const rows = getEmployees();
-console.log("rows>>>>>>>>>", rows);
+// const rows = getEmployees();
+// console.log("rows>>>>>>>>>", rows);
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -58,7 +64,7 @@ const headCells = [
   {
     id: "name",
     numeric: false,
-    disablePadding: true,
+    disablePadding: false,
     label: "Full Name",
   },
   { id: "email", numeric: false, disablePadding: false, label: "Email" },
@@ -71,7 +77,8 @@ const headCells = [
     disablePadding: false,
     label: "Department",
   },
-  { id: "date", numeric: true, disablePadding: false, label: "HireDate" },
+  { id: "date", numeric: true, disablePadding: false, label: "Hire Date" },
+  { id: "actions", label: "actions" },
 ];
 
 function EnhancedTableHead(props) {
@@ -211,6 +218,7 @@ EnhancedTableToolbar.propTypes = {
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
+    paddingTop: theme.spacing(2),
   },
   paper: {
     width: "100%",
@@ -234,16 +242,29 @@ const useStyles = makeStyles((theme) => ({
     width: "80%",
     marginTop: "50px",
   },
+  toolbar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: "10px",
+    "& .MuiFormControl-root": {
+      width: "80%",
+    },
+  },
 }));
 
 export function EnhancedTable() {
   const classes = useStyles();
+  const [rows, setRows] = React.useState(getEmployees());
+  const [editRow, setEditRow] = React.useState(null);
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [openPopup, setOpenPopup] = React.useState(false);
+  const [clearForm, setClearForm] = React.useState(false);
   const [filterFn, setFilterFn] = React.useState({
     fn: (items) => {
       return items;
@@ -316,17 +337,38 @@ export function EnhancedTable() {
     });
   };
 
+  const addOrEdit = (employee, resetForm) => {
+    employeeService.insertEmployee(employee);
+    resetForm();
+    setOpenPopup(false);
+    setRows(getEmployees());
+  };
+
+  const openInPopup = (row) => {
+    setEditRow(row);
+    setOpenPopup(true);
+  };
   return (
     <div className={classes.root}>
-      <Paper className={classes.paper}>
-        <Toolbar>
+      <Paper className={classes.paper} elevation={2}>
+        <Toolbar className={classes.toolbar}>
           <TextField
-            className={classes.serachBar}
             variant="outlined"
             label="Search Employees"
-            startAdornment={<SearchIcon fontSize="small" />}
+            startadornment={<SearchIcon fontSize="small" />}
             onChange={handleSearch}
           />
+          <Button
+            variant="contained"
+            color="secondary"
+            size="large"
+            startIcon={<AddIcon />}
+            onClick={() => {
+              setOpenPopup(true);
+            }}
+          >
+            Add New
+          </Button>
         </Toolbar>
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
@@ -349,17 +391,17 @@ export function EnhancedTable() {
               {stableSort(filterFn.fn(rows), getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
+                  const isItemSelected = isSelected(row.fullName);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
+                      onClick={(event) => handleClick(event, row.fullName)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
+                      key={row.fullName}
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
@@ -368,22 +410,36 @@ export function EnhancedTable() {
                           inputProps={{ "aria-labelledby": labelId }}
                         />
                       </TableCell>
+                      <TableCell>{row.id}</TableCell>
+
                       <TableCell
+                        align="right"
                         component="th"
                         id={labelId}
                         scope="row"
                         padding="none"
                       >
-                        {row.id}
+                        {row.fullName}
                       </TableCell>
-
-                      <TableCell align="right">{row.fullName}</TableCell>
                       <TableCell align="right">{row.email}</TableCell>
                       <TableCell align="right">{row.mobile}</TableCell>
                       <TableCell align="right">{row.city}</TableCell>
                       <TableCell align="right">{row.gender}</TableCell>
                       <TableCell align="right">{row.department}</TableCell>
                       <TableCell align="right">{row.hireDate}</TableCell>
+                      <TableCell>
+                        <ActionButton color="primary">
+                          <EditIcon
+                            fontSize="small"
+                            onClick={() => {
+                              openInPopup(row);
+                            }}
+                          />
+                        </ActionButton>
+                        <ActionButton color="primary">
+                          <DeleteIcon fontSize="small" />
+                        </ActionButton>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -409,6 +465,17 @@ export function EnhancedTable() {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
+      <Popup
+        open={openPopup}
+        setOpenPopup={setOpenPopup}
+        title="Add New Employee"
+      >
+        <EmployeeForm
+          addOrEdit={addOrEdit}
+          editRow={editRow}
+          clearForm={clearForm}
+        />
+      </Popup>
     </div>
   );
 }

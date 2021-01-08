@@ -14,7 +14,7 @@ import {
   Select,
   TextField,
 } from "@material-ui/core";
-import React from "react";
+import React, { useEffect } from "react";
 import { Form, UseForm } from "../../Components/UseForm";
 import * as employeeService from "../../Services/employeService";
 import "date-fns";
@@ -45,8 +45,17 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-function EmployeeForm() {
+function EmployeeForm(props) {
+  const { addOrEdit, editRow, clearForm } = props;
   //Validation function
+  useEffect(
+    () => {
+      if (clearForm) setValues(initialFieldValues);
+      if (editRow != null) setValues({ ...editRow });
+    },
+    [editRow],
+    clearForm
+  );
   const validate = (fieldValues = values) => {
     let temp = { ...errors };
     const newLocal = /$^|.+@.+..+/;
@@ -88,8 +97,7 @@ function EmployeeForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      employeeService.insertEmployee(values);
-      resetForm();
+      addOrEdit(values, resetForm);
     }
   };
   return (
