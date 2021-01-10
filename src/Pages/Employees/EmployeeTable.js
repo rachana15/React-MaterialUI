@@ -339,7 +339,7 @@ export function EnhancedTable() {
 
   const addOrEdit = (employee, resetForm) => {
     employeeService.insertEmployee(employee);
-    resetForm();
+    // resetForm();
     setOpenPopup(false);
     setRows(getEmployees());
   };
