@@ -22,6 +22,19 @@ export function generateEmployeeId() {
   return id;
 }
 
+export function updateEmployeeId(data) {
+  let employee = getEmployees();
+  let recordIndex = employee.findIndex((x) => x.id == data.id);
+  employee[recordIndex] = { ...data };
+  localStorage.setItem(KEYS.employees, JSON.stringify(employee));
+}
+
+export function deleteEmployee(id) {
+  let employees = getEmployees();
+  employees = employees.filter((x) => x.id != id);
+  localStorage.setItem(KEYS.employees, JSON.stringify(employees));
+}
+
 export function getEmployees() {
   if (localStorage.getItem(KEYS.employees) == null)
     localStorage.setItem(KEYS.employees, JSON.stringify([]));

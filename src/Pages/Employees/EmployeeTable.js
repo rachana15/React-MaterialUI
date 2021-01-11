@@ -29,6 +29,7 @@ import EmployeeForm from "./EmployeeForm";
 import * as employeeService from "../../Services/employeService";
 import ActionButton from "../../Components/ActionButton";
 import EditIcon from "@material-ui/icons/Edit";
+import Notification from "../../Components/Notification";
 
 // const rows = getEmployees();
 // console.log("rows>>>>>>>>>", rows);
@@ -265,6 +266,11 @@ export function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [openPopup, setOpenPopup] = React.useState(false);
   const [clearForm, setClearForm] = React.useState(false);
+  const [notify, setNotify] = React.useState({
+    isOpen: false,
+    message: "",
+    type: "",
+  });
   const [filterFn, setFilterFn] = React.useState({
     fn: (items) => {
       return items;
@@ -338,12 +344,30 @@ export function EnhancedTable() {
   };
 
   const addOrEdit = (employee, resetForm) => {
-    employeeService.insertEmployee(employee);
-    // resetForm();
+    if (employee.id == 0) employeeService.insertEmployee(employee);
+    else employeeService.updateEmployeeId(employee);
+    resetForm();
+    setEditRow(null);
     setOpenPopup(false);
-    setRows(getEmployees());
+    setRows(employeeService.getEmployees());
+    setNotify({
+      isOpen: true,
+      message: "Submitted Successfully!",
+      type: "success",
+    });
   };
 
+  const onDelete = (id) => {
+    if (window.confirm("Are you sure to delete the record?")) {
+      employeeService.deleteEmployee(id);
+      setRows(employeeService.getEmployees());
+      setNotify({
+        isOpen: true,
+        message: "Delected Successfully!",
+        type: "error",
+      });
+    }
+  };
   const openInPopup = (row) => {
     setEditRow(row);
     setOpenPopup(true);
@@ -365,6 +389,7 @@ export function EnhancedTable() {
             startIcon={<AddIcon />}
             onClick={() => {
               setOpenPopup(true);
+              setEditRow(null);
             }}
           >
             Add New
@@ -437,7 +462,12 @@ export function EnhancedTable() {
                           />
                         </ActionButton>
                         <ActionButton color="primary">
-                          <DeleteIcon fontSize="small" />
+                          <DeleteIcon
+                            fontSize="small"
+                            onClick={() => {
+                              onDelete(row.id);
+                            }}
+                          />
                         </ActionButton>
                       </TableCell>
                     </TableRow>
@@ -470,12 +500,9 @@ export function EnhancedTable() {
         setOpenPopup={setOpenPopup}
         title="Add New Employee"
       >
-        <EmployeeForm
-          addOrEdit={addOrEdit}
-          editRow={editRow}
-          clearForm={clearForm}
-        />
+        <EmployeeForm addOrEdit={addOrEdit} editRow={editRow} />
       </Popup>
+      <Notification notify={notify} setNotify={setNotify} />
     </div>
   );
 }
